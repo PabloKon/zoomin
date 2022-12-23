@@ -24,6 +24,9 @@ const App = () => {
     const customization = useSelector((state) => state.customization);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 3b57cc6 (fix: auth)
     return (
         <StyledEngineProvider injectFirst>
             <ThemeProvider theme={themes(customization)}>
@@ -36,6 +39,7 @@ const App = () => {
             </ThemeProvider>
         </StyledEngineProvider>
     );
+<<<<<<< HEAD
 =======
     const appPage = useCallback(() => {
         console.log('token: ', auth.token);
@@ -70,6 +74,8 @@ const App = () => {
 
     return appPage();
 >>>>>>> 6f190ac (fix: route)
+=======
+>>>>>>> 3b57cc6 (fix: auth)
 };
 
 export default App;
