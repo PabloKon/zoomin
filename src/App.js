@@ -23,6 +23,7 @@ const stripePromise = loadStripe(stripePublicKey);
 const App = () => {
     const customization = useSelector((state) => state.customization);
 
+<<<<<<< HEAD
     return (
         <StyledEngineProvider injectFirst>
             <ThemeProvider theme={themes(customization)}>
@@ -35,6 +36,40 @@ const App = () => {
             </ThemeProvider>
         </StyledEngineProvider>
     );
+=======
+    const appPage = useCallback(() => {
+        console.log('token: ', auth.token);
+        if (!auth.token) {
+            return (
+                <StyledEngineProvider injectFirst>
+                    <ThemeProvider theme={themes(customization)}>
+                        <CssBaseline />
+                        <NavigationScroll>
+                            <Elements stripe={stripePromise}>
+                                <Login />
+                            </Elements>
+                        </NavigationScroll>
+                    </ThemeProvider>
+                </StyledEngineProvider>
+            );
+        }
+
+        return (
+            <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={themes(customization)}>
+                    <CssBaseline />
+                    <NavigationScroll>
+                        <Elements stripe={stripePromise}>
+                            <Routes />
+                        </Elements>
+                    </NavigationScroll>
+                </ThemeProvider>
+            </StyledEngineProvider>
+        );
+    }, [auth]);
+
+    return appPage();
+>>>>>>> 6f190ac (fix: route)
 };
 
 export default App;
