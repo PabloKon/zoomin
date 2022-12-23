@@ -242,7 +242,35 @@ const LaunchPage = () => {
         if (!AudienceListData) return [];
         return AudienceListData.map((item, index) => ({ label: item.name, id: item.id, key: index }));
     }, [allEvents]);
+<<<<<<< HEAD
 
+=======
+    const load = async () => {
+        const rewards = await getReward();
+        dispatch({ type: GET_REWARDS, rewards: rewards });
+        const audiences = await getAudience();
+        dispatch({ type: GET_AUDIENCES, audiences: audiences });
+        setReward(rewards);
+        setAudience(audiences);
+        const formik1Edit = {
+            selectname: navigateState.state.screen1.eventInfo.selectname,
+            location: navigateState.state.screen1.eventInfo.location
+            // audience: AudienceLabelList.find((e) => (e.id = navigateState.state.screen1.eventInfo.audience)).label
+        };
+        const formik4Edit = {
+            sponsorname: navigateState.state.screen1.sponsor.sponsorname,
+            videourl: navigateState.state.screen1.sponsor.videourl,
+            logoUrl: '',
+            files: []
+        };
+        formik1.setValues(formik1Edit, false);
+        formik1.setFieldValue('audience', navigateState.state.screen1.eventInfo.audience);
+        formik4.setValues(formik4Edit, false);
+    };
+    React.useEffect(() => {
+        load();
+    }, []);
+>>>>>>> 28c6d6e (fix: white screen)
     return (
         <>
             {isLoading && (
