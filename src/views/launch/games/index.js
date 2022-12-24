@@ -30,10 +30,24 @@ const SelectGamePage = () => {
     const load = async () => {
         const games = await getGame();
         dispatch({ type: GET_GAMES, games: games });
+<<<<<<< HEAD
         console.log(games);
         setGames(games);
+=======
+        const prizepool = await getPrizepool();
+        dispatch({ type: GET_PRIZEPOOL, prizepool: prizepool });
+        setGames(games);
+        setPrizepool(prizepool);
+        if (navigateState.navigateState) {
+            const formik1Edit = {
+                timelimit: navigateState.navigateState.state.screen2.timelimit,
+                rewardpool: navigateState.navigateState.state.screen2.rewardpool
+            };
+            formik1.setValues(formik1Edit, false);
+        }
+>>>>>>> 5fecefa (fix: edit launch)
     };
-
+    console.log(navigateState);
     React.useEffect(() => {
         load();
     }, []);
@@ -43,13 +57,12 @@ const SelectGamePage = () => {
         const newData = cloneDeep(prizepool);
         newData.push(newPool);
         setPrizepool(newData);
-        console.log(prizepool);
         return newPool;
     };
 
     const validationSchema1 = Yup.object({
         timelimit: Yup.number('Enter Time limit').required('Time limit is required'),
-        rewardpool: Yup.number('Enter Prize Pool').required('Prize pool is required'),
+        rewardpool: Yup.object().required('Prize pool is required'),
         gameid: Yup.number('Select Game').min(1, 'Game is required').required('Game is required')
     });
 
@@ -76,11 +89,14 @@ const SelectGamePage = () => {
     const allEvents = useSelector((state) => state.campaign);
     const prizepoolListDataTemp = allEvents.prizepool;
     const prizepoolListData = prizepoolListDataTemp.map((item) => ({ ...item, label: item.name, prizepool: JSON.parse(item.prizepool) }));
-    console.log('prizepoolListData', prizepoolListData);
     const gameListData = allEvents.games;
+<<<<<<< HEAD
     console.log('allEvents:', gameListData);
     const { state: navigateState } = useLocation();
     console.log(navigateState);
+=======
+
+>>>>>>> 5fecefa (fix: edit launch)
     const handleNext = (screen2) => {
         navigate('/launch/subscription/index', { state: { screen2, screen1: navigateState } });
     };
@@ -88,7 +104,7 @@ const SelectGamePage = () => {
     const handleOpenModal = () => setOpenModal(true);
     const handleCloseModal = () => setOpenModal(false);
 
-    const onCreatePrizepool1 = useCallback(
+    const onCreatePrizepool = useCallback(
         async (values) => {
             if (
                 prizepool.reduce((sum, item) => (sum += Number(item.place)), 0) !== 100 &&
@@ -119,27 +135,6 @@ const SelectGamePage = () => {
         },
         [dispatch, prizepool]
     );
-    const onCreatePrizepool = async (values) => {
-        console.log(prizepool);
-        // try {
-        setLoading(true);
-        const data = await createPrizepool({
-            name: values.name,
-            prizepool: JSON.stringify(prizepool)
-        });
-        console.log('prizepool', data);
-        const prizepool = await getPrizepool();
-        dispatch({ type: GET_PRIZEPOOL, prizepool: prizepool });
-        console.log('prizepool get', prizepool);
-        setLoading(false);
-        // navigate('/prizes/index');
-        // } catch (e) {
-        //     console.log(e);
-        //     // setSnakebar({ open: true });
-        // } finally {
-        //     setLoading(false);
-        // }
-    };
 
     const handleCoinChange = (event, index) => {
         const currentSum = prizepool.reduce((sum, item, idx) => {
@@ -296,13 +291,12 @@ const SelectGamePage = () => {
                                         sx={{
                                             ...theme.typography.customInput
                                         }}
+                                        value={formik1.values.rewardpool}
                                         onChange={(e, v) => {
-                                            console.log(v);
-                                            formik1.setFieldValue('rewardpool', v.id);
+                                            console.log('v, ', v);
+                                            formik1.setFieldValue('rewardpool', v);
                                         }}
                                         renderOption={(props, option) => {
-                                            console.log('props', props);
-                                            console.log('props', props);
                                             return (
                                                 <li {...props} key={option.id}>
                                                     {option.name}
@@ -432,7 +426,7 @@ const SelectGamePage = () => {
                                     onClick={async () => {
                                         const errors = await formik2.validateForm();
                                         await formik2.submitForm();
-                                        await onCreatePrizepool1(formik2.values);
+                                        await onCreatePrizepool(formik2.values);
                                     }}
                                     variant="contained"
                                     sx={{

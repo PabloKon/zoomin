@@ -42,7 +42,7 @@ import Container from '@mui/material/Container';
 import Iframe from 'react-iframe';
 
 import { useForm } from 'react-hook-form';
-import { values } from 'lodash';
+import { fromPairs, values } from 'lodash';
 import Dropzone from 'react-dropzone';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
@@ -60,15 +60,17 @@ const LaunchPage = () => {
     const theme = useTheme();
     const dispatch = useDispatch();
     const state = store.getState();
+    const navigate = useNavigate();
+    const { state: navigateState } = useLocation();
+    const allEvents = useSelector((state) => state.campaign);
 
     const [videoUrl, setVideoUrl] = useState('simple');
-    const [value, setValue] = React.useState(null);
     const [open, toggleOpen] = React.useState(false);
     const [reward, setReward] = useState([]);
-    const [audience, setAudience] = useState([]);
     const [isLoading, setLoading] = React.useState(false);
     const [openModal, setOpenModal] = React.useState(false);
 
+<<<<<<< HEAD
     const { state: navigateState } = useLocation();
 
     const navigate = useNavigate();
@@ -86,9 +88,12 @@ const LaunchPage = () => {
     React.useEffect(() => {
         load();
     }, []);
+=======
+>>>>>>> 5fecefa (fix: edit launch)
     const PrizeListData = allEvents.rewards;
     const AudienceListData = allEvents.audiences;
     const TypeLabelList = [{ label: 'Reward' }, { label: 'Coupon' }];
+
     const PrizeLabelList = React.useMemo(() => {
         if (!PrizeListData) return [];
         return PrizeListData.map((item, index) => ({ label: item.name, id: item.id, key: index }));
@@ -99,7 +104,7 @@ const LaunchPage = () => {
         launchdate: Yup.date('Enter Launch Date').required('Launch Date is required'),
         location: Yup.string('Enter Location').required('Location is required'),
         endtime: Yup.date('Enter end time').required('End time is required'),
-        audience: Yup.string('Enter Audience').required('Audience is required')
+        audience: Yup.object().required('Audience is required')
     });
 
     const validationSchema2 = Yup.object({
@@ -112,9 +117,11 @@ const LaunchPage = () => {
         timelimit: Yup.number('Time Limit must be number').required('Time Limit is required'),
         ratelimit: Yup.number('Rate Limit must be number').required('Rate Limit is required')
     });
+
     const validationSchema3 = Yup.object({
         prize: Yup.array().min(1).required('Prize is required')
     });
+
     const validationSchema4 = Yup.object({
         videourl: Yup.string('Enter Video Url').required('Video Url is required'),
         sponsorname: Yup.string('Enter Sponsor Name').required('Sponsor Name is required'),
@@ -156,6 +163,7 @@ const LaunchPage = () => {
         validationSchema: validationSchema3,
         onSubmit: (values) => {}
     });
+
     const formik4 = useFormik({
         initialValues: {
             videourl: '',
@@ -197,19 +205,9 @@ const LaunchPage = () => {
         navigate('/launch/games/index', { state: { eventInfo, prize, sponsor } });
     };
 
-    // React.useEffect(() => {
-    //     async function setInitialValues() {
-    //         if (!navigateState) return;
-    //         else {
-    //             await formik1.setValues(navigateState.eventInfo, false);
-    //             // await formik3.setValues(navigateState.prizeId, false);
-    //         }
-    //     }
-    //     setInitialValues();
-    // }, [navigateState]);
-
     const handleOpenModal = () => setOpenModal(true);
     const handleCloseModal = () => setOpenModal(false);
+
     const handleClose = () => {
         setDialogValue({
             label: ''
@@ -238,39 +236,56 @@ const LaunchPage = () => {
         dispatch({ type: GET_AUDIENCES, audiences: audiences });
         handleClose();
     };
+
     const AudienceLabelList = React.useMemo(() => {
         if (!AudienceListData) return [];
         return AudienceListData.map((item, index) => ({ label: item.name, id: item.id, key: index }));
     }, [allEvents]);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
+=======
+
+>>>>>>> 5fecefa (fix: edit launch)
     const load = async () => {
         const rewards = await getReward();
         dispatch({ type: GET_REWARDS, rewards: rewards });
         const audiences = await getAudience();
         dispatch({ type: GET_AUDIENCES, audiences: audiences });
         setReward(rewards);
-        setAudience(audiences);
+
         const formik1Edit = {
-            selectname: navigateState.state.screen1.eventInfo.selectname,
-            location: navigateState.state.screen1.eventInfo.location
-            // audience: AudienceLabelList.find((e) => (e.id = navigateState.state.screen1.eventInfo.audience)).label
+            selectname: navigateState?.state.screen1.eventInfo.selectname,
+            launchdate: navigateState?.state.screen1.eventInfo.launchdate,
+            location: navigateState?.state.screen1.eventInfo.location,
+            endtime: navigateState?.state.screen1.eventInfo.endtime,
+            audience: navigateState?.state.screen1.eventInfo.audience
         };
+        const formik3Edit = {
+            prize: navigateState.state.screen1.prize.prize
+        };
+        console.log(333, formik3Edit);
         const formik4Edit = {
-            sponsorname: navigateState.state.screen1.sponsor.sponsorname,
-            videourl: navigateState.state.screen1.sponsor.videourl,
+            sponsorname: navigateState?.state.screen1.sponsor.sponsorname,
+            videourl: navigateState?.state.screen1.sponsor.videourl,
             logoUrl: '',
             files: []
         };
+
         formik1.setValues(formik1Edit, false);
-        formik1.setFieldValue('audience', navigateState.state.screen1.eventInfo.audience);
+        formik3.setValues(formik3Edit, false);
         formik4.setValues(formik4Edit, false);
     };
+
     React.useEffect(() => {
         load();
     }, []);
+<<<<<<< HEAD
 >>>>>>> 28c6d6e (fix: white screen)
+=======
+
+>>>>>>> 5fecefa (fix: edit launch)
     return (
         <>
             {isLoading && (
@@ -325,7 +340,7 @@ const LaunchPage = () => {
                                         }}
                                         value={formik1.values.launchdate}
                                         onChange={(newValue) => {
-                                            formik1.setFieldValue('launchdate', newValue);
+                                            formik1.setFieldValue('launchdate', newValue.toString());
                                         }}
                                         renderInput={(params) => (
                                             <TextField
@@ -350,8 +365,7 @@ const LaunchPage = () => {
                                         }}
                                         value={formik1.values.endtime}
                                         onChange={(newValue) => {
-                                            // formik1.values.endtime = newValue;
-                                            formik1.setFieldValue('endtime', newValue);
+                                            formik1.setFieldValue('endtime', newValue.toString());
                                         }}
                                         renderInput={(params) => (
                                             <TextField
@@ -401,8 +415,9 @@ const LaunchPage = () => {
                                     sx={{
                                         ...theme.typography.customInput
                                     }}
+                                    value={formik1.values.audience}
                                     onChange={(e, v) => {
-                                        formik1.setFieldValue('audience', v.id);
+                                        formik1.setFieldValue('audience', v);
                                         if (typeof v === 'string') {
                                             // timeout to avoid instant validation of the dialog's form.
                                             setTimeout(() => {
@@ -416,8 +431,6 @@ const LaunchPage = () => {
                                             setDialogValue({
                                                 label: v.inputValue
                                             });
-                                        } else {
-                                            setValue(v);
                                         }
                                     }}
                                     getOptionLabel={(option) => {
@@ -453,28 +466,6 @@ const LaunchPage = () => {
                                         />
                                     )}
                                 />
-                                {/* <Dialog
-                                    open={open}
-                                    onClose={handleClose}
-                                    sx={{
-                                        top: '50%',
-                                        left: '50%',
-                                        transform: 'translate(-50%, -50%)',
-                                        width: 1000,
-                                        bgcolor: '#360068',
-                                        opacity: '0.88',
-
-                                        border: '2px solid #000',
-                                        boxShadow: '39.9357px 7.35657px 132.418px rgba(0, 0, 0, 0.4)',
-                                        p: 8,
-                                        '& .MuiDialog-container': {
-                                            '& .MuiDialog-paper': {
-                                                minWidth: '100%',
-                                                minHeight: '100%'
-                                            }
-                                        }
-                                    }}
-                                > */}
                                 <Modal
                                     open={open}
                                     onClose={handleClose}
@@ -726,15 +717,11 @@ const LaunchPage = () => {
                                     sx={{
                                         ...theme.typography.customInput
                                     }}
+                                    value={formik3.values.prize}
                                     onChange={(e, v) => {
-                                        console.log(v);
-                                        formik3.values.prize = [];
-                                        v.forEach((item, index) => {
-                                            console.log(item);
-                                            formik3.values.prize.push(item.id);
-                                        });
-                                        console.log(formik3.values.prize);
+                                        formik3.setFieldValue('prize', v);
                                     }}
+                                    getOptionLabel={(option) => option.label}
                                     renderOption={(props, option) => {
                                         return (
                                             <li {...props} key={option.id}>
@@ -742,14 +729,16 @@ const LaunchPage = () => {
                                             </li>
                                         );
                                     }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            error={formik3.touched.prize && Boolean(formik3.errors.prize)}
-                                            helperText={formik3.touched.prize && formik3.errors.prize}
-                                            label="Select Prizes"
-                                        />
-                                    )}
+                                    renderInput={(params) => {
+                                        return (
+                                            <TextField
+                                                {...params}
+                                                error={formik3.touched.prize && Boolean(formik3.errors.prize)}
+                                                helperText={formik3.touched.prize && formik3.errors.prize}
+                                                label="Select Prizes"
+                                            />
+                                        );
+                                    }}
                                 />
                             </Grid>
                         </Grid>
@@ -988,7 +977,6 @@ const LaunchPage = () => {
                             const errors = await formik1.validateForm();
                             const errors3 = await formik3.validateForm();
                             const errors4 = await formik4.validateForm();
-                            console.log(errors4, errors, errors3);
                             await formik1.submitForm();
                             await formik3.submitForm();
                             await formik4.submitForm();
