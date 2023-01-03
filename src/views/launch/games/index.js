@@ -31,13 +31,18 @@ const SelectGamePage = () => {
         const games = await getGame();
         dispatch({ type: GET_GAMES, games: games });
 <<<<<<< HEAD
+<<<<<<< HEAD
         console.log(games);
         setGames(games);
 =======
         const prizepool = await getPrizepool();
         dispatch({ type: GET_PRIZEPOOL, prizepool: prizepool });
+=======
+        const prizepools = await getPrizepool();
+        dispatch({ type: GET_PRIZEPOOL, prizepool: prizepools });
+>>>>>>> 94ddf3c (fix: create prize pool field 10)
         setGames(games);
-        setPrizepool(prizepool);
+        // setPrizepool(prizepools);
         if (navigateState.navigateState) {
             const formik1Edit = {
                 timelimit: navigateState.navigateState.state.screen2.timelimit,
@@ -51,7 +56,7 @@ const SelectGamePage = () => {
     React.useEffect(() => {
         load();
     }, []);
-
+    console.log(prizepool);
     const addPrizePool = (place, coin) => {
         const newPool = { place: '', coin: '', errorCoinText: '', errorPlaceText: '' };
         const newData = cloneDeep(prizepool);
