@@ -58,7 +58,7 @@ const SelectGamePage = () => {
     }, []);
     console.log(prizepool);
     const addPrizePool = (place, coin) => {
-        const newPool = { place: '', coin: '', errorCoinText: '', errorPlaceText: '' };
+        const newPool = { place: '', coin: '' };
         const newData = cloneDeep(prizepool);
         newData.push(newPool);
         setPrizepool(newData);
@@ -112,7 +112,7 @@ const SelectGamePage = () => {
     const onCreatePrizepool = useCallback(
         async (values) => {
             if (
-                prizepool.reduce((sum, item) => (sum += Number(item.place)), 0) !== 100 &&
+                prizepool.reduce((sum, item) => (sum += Number(item.place)), 0) !== 100 ||
                 prizepool.reduce((sum, item) => (sum += Number(item.coin)), 0) !== 100
             ) {
                 alert('The sum of the place or coin percent should be 100.');
@@ -150,16 +150,10 @@ const SelectGamePage = () => {
             return sum;
         }, 0);
         if (currentSum + Number(event.target.value) > 100) {
-            setPrizepool((prev) =>
-                prev.map((item, idx) =>
-                    idx === index ? { ...item, coin: event.target.value, errorCoinText: 'Invalid input' } : { ...item, errorCoinText: '' }
-                )
-            );
+            setPrizepool((prev) => prev.map((item, idx) => (idx === index ? { ...item, coin: event.target.value } : { ...item })));
         } else {
             setPrizepool((prev) =>
-                prev.map((item, idx) =>
-                    idx === index ? { coin: event.target.value, place: item.place, errorCoinText: '' } : { ...item, errorCoinText: '' }
-                )
+                prev.map((item, idx) => (idx === index ? { coin: event.target.value, place: item.place } : { ...item }))
             );
         }
     };
@@ -172,19 +166,9 @@ const SelectGamePage = () => {
         }, 0);
 
         if (currentSum + Number(event.target.value) > 100) {
-            setPrizepool((prev) =>
-                prev.map((item, idx) =>
-                    idx === index
-                        ? { ...item, place: event.target.value, errorPlaceText: 'Invalid input' }
-                        : { ...item, errorPlaceText: '' }
-                )
-            );
+            setPrizepool((prev) => prev.map((item, idx) => (idx === index ? { ...item, place: event.target.value } : { ...item })));
         } else {
-            setPrizepool((prev) =>
-                prev.map((item, idx) =>
-                    idx === index ? { place: event.target.value, coin: item.coin, errorPlaceText: '' } : { ...item, errorPlaceText: '' }
-                )
-            );
+            setPrizepool((prev) => prev.map((item, idx) => (idx === index ? { place: event.target.value, coin: item.coin } : { ...item })));
         }
     };
 
@@ -394,8 +378,6 @@ const SelectGamePage = () => {
                                                     type="number"
                                                     value={item.place}
                                                     onChange={(e) => handlePlaceChange(e, index)}
-                                                    error={!!item.errorPlaceText}
-                                                    helperText={item.errorPlaceText}
                                                     sx={{ ...theme.typography.customInput }}
                                                     InputProps={{
                                                         startAdornment: <InputAdornment position="end">%</InputAdornment>
@@ -413,8 +395,6 @@ const SelectGamePage = () => {
                                                     name={'coin' + `${index}`}
                                                     type="number"
                                                     value={item.coin}
-                                                    error={!!item.errorCoinText}
-                                                    helperText={item.errorCoinText}
                                                     onChange={(e) => handleCoinChange(e, index)}
                                                     sx={{ ...theme.typography.customInput }}
                                                     InputProps={{
