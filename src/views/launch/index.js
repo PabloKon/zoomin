@@ -33,8 +33,8 @@ import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
 import PrizeSelect from 'ui-component/PrizeSelect';
 import { FormikProvider, useFormik } from 'formik';
-import { getReward, getCampaign, createPrize, getAudience, createAudience } from 'services/apis/server';
-import { GET_AUDIENCES, GET_REWARDS } from 'store/actions';
+import { getReward, getCampaign, createPrize, getAudience, createAudience, getPrizepool, getGame } from 'services/apis/server';
+import { GET_AUDIENCES, GET_GAMES, GET_PRIZEPOOL, GET_REWARDS } from 'store/actions';
 import { store } from 'store';
 import ReactPlayer from 'react-player';
 import screenfull from 'screenfull';
@@ -75,11 +75,16 @@ const LaunchPage = () => {
 =======
 >>>>>>> e033251 (fix: update launch first page)
     const { state: navigateState } = useLocation();
+    console.log(navigateState);
 
     const navigate = useNavigate();
     const allEvents = useSelector((state) => state.campaign);
 
     const load = async () => {
+        const games = await getGame();
+        dispatch({ type: GET_GAMES, games: games });
+        const prizepools = await getPrizepool();
+        dispatch({ type: GET_PRIZEPOOL, prizepool: prizepools });
         const rewards = await getReward();
         dispatch({ type: GET_REWARDS, rewards: rewards });
         const audiences = await getAudience();
@@ -104,14 +109,17 @@ const LaunchPage = () => {
         if (!PrizeListData) return [];
         return PrizeListData.map((item, index) => ({ label: item.name, id: item.id, key: index }));
     }, [PrizeListData]);
-
+    const AudienceLabelList = React.useMemo(() => {
+        if (!AudienceListData) return [];
+        return AudienceListData.map((item, index) => ({ label: item.name, id: item.id, key: index }));
+    }, [allEvents]);
     const validationSchema1 = Yup.object({
         selectname: Yup.string('Enter Prize name').required('Name is required'),
-        launchdate: Yup.date('Enter Launch Date').required('Launch Date is required'),
+        launchdate: Yup.string('Enter Launch Date').required('Launch Date is required'),
         location: Yup.string('Enter Location').required('Location is required'),
-        endtime: Yup.date('Enter end time').required('End time is required'),
-        audience: Yup.string('Enter Audience').required('Audience is required'),
-        type: Yup.string('').required('Type is required')
+        endtime: Yup.string('Enter end time').required('End time is required'),
+        audience: Yup.object().required('Audience is required'),
+        type: Yup.object().required('Type is required')
     });
 
     const validationSchema2 = Yup.object({
@@ -133,14 +141,34 @@ const LaunchPage = () => {
         files: Yup.array().min(1).required('Image is required')
     });
 
+    // Edit values
+    let targetAudience;
+    AudienceLabelList.forEach((item) => {
+        if (item.id == navigateState.state?.screen1?.eventInfo.audience.id) {
+            targetAudience = item;
+        }
+    });
+    let targetType;
+    TypeList.forEach((item) => {
+        if (item.label == navigateState.state?.screen1?.eventInfo.type.label) {
+            targetType = item;
+        }
+    });
+    let targetPrize = [];
+    PrizeLabelList.forEach((item) => {
+        navigateState.state?.screen1?.prize.prize.forEach((j) => {
+            if (item.id == j.id) targetPrize.push(item);
+        });
+    });
+    console.log('targetAudience', targetAudience);
     const formik1 = useFormik({
         initialValues: {
-            selectname: '',
-            launchdate: '',
-            location: '',
-            endtime: '',
-            audience: '',
-            type: ''
+            selectname: navigateState.state?.screen1?.eventInfo.selectname,
+            launchdate: navigateState.state?.screen1?.eventInfo.launchdate,
+            location: navigateState.state?.screen1?.eventInfo.location,
+            endtime: navigateState.state?.screen1?.eventInfo.endtime,
+            audience: targetAudience,
+            type: targetType
         },
         validationSchema: validationSchema1,
         onSubmit: (values) => {}
@@ -164,15 +192,15 @@ const LaunchPage = () => {
 
     const formik3 = useFormik({
         initialValues: {
-            prize: []
+            prize: targetPrize
         },
         validationSchema: validationSchema3,
         onSubmit: (values) => {}
     });
     const formik4 = useFormik({
         initialValues: {
-            videourl: '',
-            sponsorname: '',
+            videourl: navigateState.state?.screen1?.sponsor.videourl,
+            sponsorname: navigateState.state?.screen1?.sponsor.sponsorname,
             logoUrl: '',
             files: []
         },
@@ -207,7 +235,7 @@ const LaunchPage = () => {
     };
 
     const handleNext = (eventInfo, prize, sponsor) => {
-        navigate('/launch/games/index', { state: { eventInfo, prize, sponsor } });
+        navigate('/launch/games/index', { state: { eventInfo, prize, sponsor, navigateState } });
     };
 
     // React.useEffect(() => {
@@ -251,12 +279,15 @@ const LaunchPage = () => {
         dispatch({ type: GET_AUDIENCES, audiences: audiences });
         handleClose();
     };
+<<<<<<< HEAD
     const AudienceLabelList = React.useMemo(() => {
         if (!AudienceListData) return [];
         return AudienceListData.map((item, index) => ({ label: item.name, id: item.id, key: index }));
     }, [allEvents]);
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+>>>>>>> 393e39a (fix: fixed bugs via git merge)
 
 <<<<<<< HEAD
 =======
@@ -432,11 +463,13 @@ const LaunchPage = () => {
                                     id="audience_label_list"
                                     name="audience"
                                     options={AudienceLabelList}
+                                    value={formik1.values.audience}
                                     sx={{
                                         ...theme.typography.customInput
                                     }}
                                     onChange={(e, v) => {
-                                        formik1.setFieldValue('audience', v.id);
+                                        console.log('VVVVVVVV', v);
+                                        formik1.setFieldValue('audience', v);
                                         if (typeof v === 'string') {
                                             // timeout to avoid instant validation of the dialog's form.
                                             setTimeout(() => {
@@ -453,14 +486,24 @@ const LaunchPage = () => {
                                         } else {
                                             setValue(v);
                                         }
+                                        console.log(v);
                                     }}
                                     getOptionLabel={(option) => {
                                         // e.g value selected with enter, right from the input
+                                        console.log(option);
                                         if (typeof option === 'string') {
                                             return option;
                                         }
                                         if (option.inputValue) {
                                             return option.inputValue;
+                                        }
+                                        if (typeof option === 'number') {
+                                            AudienceLabelList.forEach((item) => {
+                                                if (item.id == option) {
+                                                    console.log('selected', item);
+                                                    return item;
+                                                }
+                                            });
                                         }
                                         return option.label;
                                     }}
@@ -472,7 +515,6 @@ const LaunchPage = () => {
                                                 inputValue: params.inputValue,
                                                 label: `Add "${params.inputValue}"`
                                             });
-                                            console.log(filtered);
                                         }
 
                                         return filtered;
@@ -597,6 +639,7 @@ const LaunchPage = () => {
                                     id="type_label_list"
                                     name="type"
                                     options={TypeList}
+                                    value={formik1.values.type}
                                     sx={{
                                         ...theme.typography.customInput
                                     }}
@@ -797,14 +840,16 @@ const LaunchPage = () => {
                                     sx={{
                                         ...theme.typography.customInput
                                     }}
+                                    value={formik3.values.prize}
                                     onChange={(e, v) => {
-                                        console.log(v);
-                                        formik3.values.prize = [];
+                                        console.log('v', v);
+                                        const prize = [];
                                         v.forEach((item, index) => {
-                                            console.log(item);
-                                            formik3.values.prize.push(item.id);
+                                            console.log('item', item);
+                                            prize.push(item);
                                         });
-                                        console.log(formik3.values.prize);
+                                        console.log('prize', prize);
+                                        formik3.setFieldValue('prize', v);
                                     }}
                                     renderOption={(props, option) => {
                                         return (
@@ -1057,16 +1102,24 @@ const LaunchPage = () => {
                         type="submit"
                         variant="contained"
                         onClick={async () => {
-                            const errors = await formik1.validateForm();
-                            const errors3 = await formik3.validateForm();
-                            const errors4 = await formik4.validateForm();
-                            console.log(errors4, errors, errors3);
-                            await formik1.submitForm();
-                            await formik3.submitForm();
-                            await formik4.submitForm();
-                            if (Object.keys(errors).length == 0 && Object.keys(errors3).length == 0 && Object.keys(errors4).length == 0) {
-                                handleNext(formik1.values, formik3.values, formik4.values);
-                            } else console.log('false');
+                            try {
+                                const errors = await formik1.validateForm();
+                                const errors3 = await formik3.validateForm();
+                                const errors4 = await formik4.validateForm();
+                                console.log(errors, errors3, errors4);
+                                await formik1.submitForm();
+                                await formik3.submitForm();
+                                await formik4.submitForm();
+                                if (
+                                    Object.keys(errors).length == 0 &&
+                                    Object.keys(errors3).length == 0 &&
+                                    Object.keys(errors4).length == 0
+                                ) {
+                                    handleNext(formik1.values, formik3.values, formik4.values);
+                                } else console.log('false');
+                            } catch (e) {
+                                console.log('AAAAAA', e);
+                            }
                         }}
                         sx={{
                             borderRadius: '8.8',
